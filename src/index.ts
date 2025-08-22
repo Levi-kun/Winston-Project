@@ -8,15 +8,21 @@ import {
 
 class MyLogger {
   private logger: Logger;
-  constructor() {
+
+  constructor(filename: string = "unknown") {
+    if (filename.startsWith("file://")) {
+      filename = filename.slice(7);
+    }
+
     this.logger = createLogger({
       transports: [
         new transports.Console({
           format: format.combine(
-            format.timestamp({ format: "MM-YY - HH:MM:SS" }),
+            format.label({ label: filename }),
+            format.timestamp({ format: "MM-DD-YY - HH:mm:ss" }),
             format.errors({ stack: true }),
-            format.printf(({ timestamp, level, message }) => {
-              return `${timestamp} ${level}: ${message}`;
+            format.printf(({ timestamp, level, message, label }) => {
+              return `- ${timestamp} - [${label}] ${level}: ${message}`;
             }),
             format.colorize({ all: true })
           ),
@@ -25,35 +31,41 @@ class MyLogger {
           filename: "error.log",
           level: "error",
           format: format.combine(
-            format.timestamp({ format: "MM-DD-YY - HH:MM:SS" }),
+            format.label({ label: filename }),
+            format.timestamp({ format: "MM-DD-YY - HH:mm:ss" }),
             format.errors({ stack: true }),
-            format.printf(({ timestamp, level, message, stack }) => {
-              return `${timestamp} ${level}: ${message}\n${stack ? stack : ""}`;
-            }),
-            format.colorize()
+            format.printf(({ timestamp, level, message, stack, label }) => {
+              return `- ${timestamp} - [${label}] ${level}: ${message}\n${
+                stack ? stack : ""
+              }`;
+            })
           ),
         }),
         new transports.File({
           filename: "warn.log",
           level: "warn",
           format: format.combine(
-            format.timestamp({ format: "MM-DD-YY - HH:MM:SS" }),
+            format.label({ label: filename }),
+            format.timestamp({ format: "MM-DD-YY - HH:mm:ss" }),
             format.errors({ stack: true }),
-            format.printf(({ timestamp, level, message, stack }) => {
-              return `${timestamp} ${level}: ${message}\n${stack ? stack : ""}`;
-            }),
-            format.colorize()
+            format.printf(({ timestamp, level, message, stack, label }) => {
+              return `- ${timestamp} - [${label}] ${level}: ${message}\n${
+                stack ? stack : ""
+              }`;
+            })
           ),
         }),
         new transports.File({
           filename: "combine.log",
           format: format.combine(
-            format.timestamp({ format: "MM-DD-YY - HH:MM:SS" }),
+            format.label({ label: filename }),
+            format.timestamp({ format: "MM-DD-YY - HH:mm:ss" }),
             format.errors({ stack: true }),
-            format.printf(({ timestamp, level, message, stack }) => {
-              return `${timestamp} ${level}: ${message}\n${stack ? stack : ""}`;
-            }),
-            format.colorize({ all: true })
+            format.printf(({ timestamp, level, message, stack, label }) => {
+              return `- ${timestamp} - [${label}] ${level}: ${message}\n${
+                stack ? stack : ""
+              }`;
+            })
           ),
         }),
       ],
@@ -79,7 +91,7 @@ class MyLogger {
   };
 }
 
-const logger: MyLogger = new MyLogger();
+const logger: MyLogger = new MyLogger(import.meta?.url);
 
 logger.info("Log message test");
 logger.error("Error message test");
