@@ -1,0 +1,5 @@
+{
+    "workbench.settings.showAISearchToggle": false,
+    "gitlens.ai.enabled": false,
+    "chat.agent.enabled": false
+}
